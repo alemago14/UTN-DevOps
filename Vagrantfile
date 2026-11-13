@@ -15,6 +15,10 @@ Vagrant.configure("2") do |config|
     vb.cpus = 1
   end
 
+  # Copia el archivo de configuracion del servidor web desde el host a la VM
+  config.vm.provision "file",
+    source: "./config/nginx.conf",
+    destination: "/tmp/nginx-default.conf"
 
   # Instala nginx y git, aplica la config y despliega el sitio desde Git
   config.vm.provision "shell", inline: <<-SHELL
@@ -25,14 +29,12 @@ Vagrant.configure("2") do |config|
     if [ -d /var/www/sitio/.git ]; then
       git -C /var/www/sitio pull
     else
-      git clone https://github.com/alemago14/UTN-DevOps-html /var/www/sitio
+      git clone https://github.com/alemago14/UTN-DevOps-html.git /var/www/sitio
     fi
 
     # Aplicar la configuracion de nginx copiada desde el host
     cp /tmp/nginx-default.conf /etc/nginx/sites-available/default
     nginx -t
     systemctl restart nginx
-  SHELL
- nginx
   SHELL
 end
